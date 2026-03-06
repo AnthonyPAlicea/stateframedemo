@@ -27,6 +27,8 @@ State communication happens via the browser's `postMessage` functionality to com
 
 Vibe coded prototypes are given a file or library that the LLM is instructed to use to always allow state to be retrieved and sent via `postMessage`.
 
+The rest of this demo is built using React and [React Flow](https://reactflow.dev/), Vite, and Tailwind.
+
 ## Running locally
 
 ```

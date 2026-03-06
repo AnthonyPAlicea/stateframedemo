@@ -20,7 +20,7 @@ export default defineConfig({
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
           const url = (req.url ?? '/').split('?')[0]
-          if (!url.startsWith('/prototypes/')) return next()
+          if (!url.startsWith('/prototypes/') && !url.startsWith('/welcome/')) return next()
 
           let rel = url.endsWith('/') ? url + 'index.html' : url
           if (!path.extname(rel)) rel += '/index.html'

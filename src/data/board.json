@@ -5,8 +5,7 @@
       "type": "welcome",
       "position": { "x": 0, "y": -170 },
       "data": {},
-      "draggable": false,
-      "selectable": false
+      "dragHandle": ".drag-handle"
     },
     {
       "id": "single-page",
