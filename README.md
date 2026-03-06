@@ -2,6 +2,8 @@
 
 A demo of state-aware design review for vibe-coded prototypes.
 
+[View the demo](https://stateframe.netlify.app/)
+
 ## The problem
 
 Vibe coding interactive prototypes is a fantastic way to perform user research, iterate on design ideas, and share with a team.
