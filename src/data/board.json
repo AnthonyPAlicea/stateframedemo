@@ -1,0 +1,50 @@
+{
+  "nodes": [
+    {
+      "id": "welcome",
+      "type": "welcome",
+      "position": { "x": 0, "y": -170 },
+      "data": {},
+      "draggable": false,
+      "selectable": false
+    },
+    {
+      "id": "single-page",
+      "type": "prototype",
+      "position": { "x": 0, "y": 0 },
+      "dragHandle": ".drag-handle",
+      "data": {
+        "label": "A: All-in-One",
+        "prototype": "single-page",
+        "width": 375,
+        "height": 700
+      }
+    },
+    {
+      "id": "wizard",
+      "type": "prototype",
+      "position": { "x": 670, "y": 0 },
+      "dragHandle": ".drag-handle",
+      "data": {
+        "label": "B: Step by Step",
+        "prototype": "wizard",
+        "width": 375,
+        "height": 700
+      }
+    },
+    {
+      "id": "conversational",
+      "type": "prototype",
+      "position": { "x": 1340, "y": 0 },
+      "dragHandle": ".drag-handle",
+      "data": {
+        "label": "C: Chat-Style",
+        "prototype": "conversational",
+        "width": 375,
+        "height": 700
+      }
+    }
+  ],
+  "edges": [],
+  "viewport": { "x": 60, "y": 100, "zoom": 0.72 }
+}

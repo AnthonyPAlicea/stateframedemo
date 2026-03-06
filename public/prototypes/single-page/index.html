@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request an Appointment — Fish Family Medicine</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f1f5f9;
+      min-height: 100vh;
+      padding: 24px 20px 48px;
+      color: #1e293b;
+      font-size: 14px;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .page-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0d9488;
+      letter-spacing: -0.01em;
+    }
+    .page-header p {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 5px;
+    }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      border-radius: 7px;
+      padding: 8px 11px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1e293b;
+      background: white;
+      transition: border-color 150ms;
+      outline: none;
+    }
+    .field input:focus, .field textarea:focus {
+      border-color: #0d9488;
+      box-shadow: 0 0 0 3px rgba(13,148,136,0.1);
+    }
+    .field textarea { resize: vertical; min-height: 80px; }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .toggle-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .toggle-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 150ms;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      user-select: none;
+    }
+    .toggle-card:hover { border-color: #0d9488; background: #f0fdfa; }
+    .toggle-card.selected {
+      border-color: #0d9488;
+      background: #f0fdfa;
+      color: #0d9488;
+      font-weight: 600;
+    }
+    .toggle-card .icon { font-size: 20px; margin-bottom: 4px; }
+
+    .provider-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .provider-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 10px;
+      cursor: pointer;
+      transition: all 150ms;
+      text-align: center;
+      user-select: none;
+    }
+    .provider-card:hover { border-color: #0d9488; background: #f0fdfa; }
+    .provider-card.selected { border-color: #0d9488; background: #f0fdfa; }
+    .provider-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: #e2e8f0;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 8px;
+      font-size: 14px; font-weight: 700; color: #475569;
+    }
+    .provider-card.selected .provider-avatar { background: #ccfbf1; color: #0d9488; }
+    .provider-name { font-size: 12px; font-weight: 600; color: #374151; }
+    .provider-specialty { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    .pill-row {
+      display: flex; flex-wrap: wrap; gap: 7px;
+    }
+    .pill {
+      border: 1.5px solid #e2e8f0;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 120ms;
+      color: #374151;
+      user-select: none;
+    }
+    .pill:hover { border-color: #0d9488; color: #0d9488; }
+    .pill.selected {
+      border-color: #0d9488;
+      background: #0d9488;
+      color: white;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: #0d9488;
+      color: white;
+      border: none;
+      border-radius: 9px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 150ms;
+      margin-top: 8px;
+    }
+    .submit-btn:hover { background: #0f766e; }
+    .submit-btn:active { background: #115e59; }
+
+    .confirmation {
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
+    }
+    .confirmation.visible { display: block; }
+    .confirmation .check {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: #d1fae5;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+    }
+    .confirmation h2 {
+      font-size: 20px; font-weight: 700; color: #065f46; margin-bottom: 8px;
+    }
+    .confirmation p {
+      font-size: 14px; color: #374151; line-height: 1.6; margin-bottom: 6px;
+    }
+    .confirmation .detail {
+      background: #f0fdf4; border: 1px solid #bbf7d0;
+      border-radius: 10px; padding: 16px; margin: 20px 0; text-align: left;
+    }
+    .confirmation .detail-row {
+      display: flex; justify-content: space-between;
+      font-size: 13px; margin-bottom: 6px;
+    }
+    .confirmation .detail-row:last-child { margin-bottom: 0; }
+    .confirmation .detail-label { color: #6b7280; }
+    .confirmation .detail-value { font-weight: 600; color: #065f46; }
+    .reset-btn {
+      background: none; border: 1px solid #d1d5db; border-radius: 8px;
+      padding: 10px 20px; font-size: 13px; color: #6b7280;
+      font-family: inherit; cursor: pointer; margin-top: 16px;
+    }
+    .reset-btn:hover { border-color: #9ca3af; color: #374151; }
+
+    .form-content {}
+    .form-content.hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>Fish Family Medicine</h1>
+    <p>Request an Appointment</p>
+  </div>
+
+  <div class="form-content" id="formContent">
+    <!-- Patient Info -->
+    <div class="card">
+      <div class="card-title">Patient Information</div>
+      <div class="row">
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="patientName" placeholder="Maria Garcia" />
+        </div>
+        <div class="field">
+          <label>Date of Birth</label>
+          <input type="date" id="patientDob" />
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" id="patientPhone" placeholder="555-0142" />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="patientEmail" placeholder="you@email.com" />
+        </div>
+      </div>
+    </div>
+
+    <!-- New / Returning -->
+    <div class="card">
+      <div class="card-title">Are you a new patient?</div>
+      <div class="toggle-row">
+        <div class="toggle-card" id="newPatient" onclick="setNewPatient(true)">
+          <div class="icon">✨</div>
+          New Patient
+        </div>
+        <div class="toggle-card" id="returningPatient" onclick="setNewPatient(false)">
+          <div class="icon">👋</div>
+          Returning Patient
+        </div>
+      </div>
+    </div>
+
+    <!-- Provider -->
+    <div class="card">
+      <div class="card-title">Choose a Provider</div>
+      <div class="provider-grid">
+        <div class="provider-card" id="prov-dr-fish" onclick="setProvider('dr-fish')">
+          <div class="provider-avatar">DF</div>
+          <div class="provider-name">Dr. Fish</div>
+          <div class="provider-specialty">Family Medicine</div>
+        </div>
+        <div class="provider-card" id="prov-dr-brooks" onclick="setProvider('dr-brooks')">
+          <div class="provider-avatar">DB</div>
+          <div class="provider-name">Dr. Brooks</div>
+          <div class="provider-specialty">Family Medicine</div>
+        </div>
+        <div class="provider-card" id="prov-nurse-practitioner" onclick="setProvider('nurse-practitioner')">
+          <div class="provider-avatar">NP</div>
+          <div class="provider-name">Nurse Practitioner</div>
+          <div class="provider-specialty">General Care</div>
+        </div>
+        <div class="provider-card" id="prov-any" onclick="setProvider('any')">
+          <div class="provider-avatar">?</div>
+          <div class="provider-name">Any Available</div>
+          <div class="provider-specialty">Earliest slot</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appointment Type -->
+    <div class="card">
+      <div class="card-title">Appointment Type</div>
+      <div class="pill-row">
+        <div class="pill" id="type-checkup" onclick="setAppointmentType('checkup')">Checkup</div>
+        <div class="pill" id="type-sick-visit" onclick="setAppointmentType('sick-visit')">Sick Visit</div>
+        <div class="pill" id="type-follow-up" onclick="setAppointmentType('follow-up')">Follow-Up</div>
+        <div class="pill" id="type-physical" onclick="setAppointmentType('physical')">Physical</div>
+        <div class="pill" id="type-other" onclick="setAppointmentType('other')">Other</div>
+      </div>
+    </div>
+
+    <!-- Date & Time -->
+    <div class="card">
+      <div class="card-title">Preferred Date & Time</div>
+      <div class="field">
+        <label>Preferred Date</label>
+        <input type="date" id="preferredDate" />
+      </div>
+      <div style="margin-top:14px">
+        <label style="display:block;font-size:12px;font-weight:500;color:#374151;margin-bottom:8px">Time Preference</label>
+        <div class="pill-row">
+          <div class="pill" id="time-morning" onclick="setPreferredTime('morning')">Morning</div>
+          <div class="pill" id="time-afternoon" onclick="setPreferredTime('afternoon')">Afternoon</div>
+          <div class="pill" id="time-any" onclick="setPreferredTime('any')">No Preference</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reason -->
+    <div class="card">
+      <div class="card-title">Reason for Visit</div>
+      <div class="field">
+        <label>Briefly describe why you're coming in</label>
+        <textarea id="reason" placeholder="e.g., Annual physical, persistent cough, follow-up on lab results..."></textarea>
+      </div>
+    </div>
+
+    <!-- Insurance -->
+    <div class="card" id="insuranceCard">
+      <div class="card-title">Insurance Information</div>
+      <div class="field">
+        <label>Insurance Provider</label>
+        <input type="text" id="insuranceProvider" placeholder="e.g., Blue Cross, Aetna" />
+      </div>
+      <div class="field">
+        <label>Member ID</label>
+        <input type="text" id="insuranceMemberId" placeholder="e.g., BCX-9981234" />
+      </div>
+      <p style="font-size:11px;color:#94a3b8;margin-top:8px">Leave blank if uninsured or self-pay</p>
+    </div>
+
+    <button class="submit-btn" onclick="handleSubmit()">Submit Appointment Request</button>
+  </div>
+
+  <!-- Confirmation -->
+  <div class="card confirmation" id="confirmation">
+    <div class="check">✓</div>
+    <h2>Request Submitted!</h2>
+    <p>We'll confirm your appointment within 24 hours via email or phone.</p>
+    <div class="detail" id="confirmDetail"></div>
+    <button class="reset-btn" onclick="resetForm()">Start Over</button>
+  </div>
+
+  <script type="module">
+    import { initBridge, emitStateChange } from '../_shared/stateframe-bridge.js'
+
+    const defaultState = {
+      patientName: '',
+      patientDob: '',
+      patientPhone: '',
+      patientEmail: '',
+      isNewPatient: null,
+      provider: null,
+      appointmentType: null,
+      preferredDate: '',
+      preferredTime: null,
+      reason: '',
+      insuranceProvider: '',
+      insuranceMemberId: '',
+      submitted: false,
+    }
+
+    let state = { ...defaultState }
+
+    function render() {
+      // Text inputs
+      document.getElementById('patientName').value = state.patientName
+      document.getElementById('patientDob').value = state.patientDob
+      document.getElementById('patientPhone').value = state.patientPhone
+      document.getElementById('patientEmail').value = state.patientEmail
+      document.getElementById('preferredDate').value = state.preferredDate
+      document.getElementById('reason').value = state.reason
+      document.getElementById('insuranceProvider').value = state.insuranceProvider
+      document.getElementById('insuranceMemberId').value = state.insuranceMemberId
+
+      // New/returning
+      document.getElementById('newPatient').classList.toggle('selected', state.isNewPatient === true)
+      document.getElementById('returningPatient').classList.toggle('selected', state.isNewPatient === false)
+
+      // Provider
+      ;['dr-fish','dr-brooks','nurse-practitioner','any'].forEach(p => {
+        document.getElementById('prov-' + p).classList.toggle('selected', state.provider === p)
+      })
+
+      // Appointment type
+      ;['checkup','sick-visit','follow-up','physical','other'].forEach(t => {
+        document.getElementById('type-' + t).classList.toggle('selected', state.appointmentType === t)
+      })
+
+      // Time
+      ;['morning','afternoon','any'].forEach(t => {
+        document.getElementById('time-' + t).classList.toggle('selected', state.preferredTime === t)
+      })
+
+      // Submitted
+      const formContent = document.getElementById('formContent')
+      const confirmation = document.getElementById('confirmation')
+      if (state.submitted) {
+        formContent.classList.add('hidden')
+        confirmation.classList.add('visible')
+        renderConfirmation()
+      } else {
+        formContent.classList.remove('hidden')
+        confirmation.classList.remove('visible')
+      }
+    }
+
+    function renderConfirmation() {
+      const providerNames = {
+        'dr-fish': 'Dr. Fish',
+        'dr-brooks': 'Dr. Brooks',
+        'nurse-practitioner': 'Nurse Practitioner',
+        'any': 'Any Available',
+      }
+      const typeNames = {
+        'checkup': 'Checkup',
+        'sick-visit': 'Sick Visit',
+        'follow-up': 'Follow-Up',
+        'physical': 'Physical',
+        'other': 'Other',
+      }
+      document.getElementById('confirmDetail').innerHTML = `
+        <div class="detail-row"><span class="detail-label">Patient</span><span class="detail-value">${state.patientName || '—'}</span></div>
+        <div class="detail-row"><span class="detail-label">Provider</span><span class="detail-value">${providerNames[state.provider] || '—'}</span></div>
+        <div class="detail-row"><span class="detail-label">Type</span><span class="detail-value">${typeNames[state.appointmentType] || '—'}</span></div>
+        <div class="detail-row"><span class="detail-label">Preferred Date</span><span class="detail-value">${state.preferredDate || '—'}</span></div>
+      `
+    }
+
+    function updateState(changes) {
+      state = { ...state, ...changes }
+      render()
+      emitStateChange(state)
+    }
+
+    window.setNewPatient = (val) => updateState({ isNewPatient: val })
+    window.setProvider = (val) => updateState({ provider: val })
+    window.setAppointmentType = (val) => updateState({ appointmentType: val })
+    window.setPreferredTime = (val) => updateState({ preferredTime: val })
+    window.handleSubmit = () => updateState({ submitted: true })
+    window.resetForm = () => {
+      state = { ...defaultState }
+      render()
+      emitStateChange(state)
+    }
+
+    // Wire up text inputs
+    ;['patientName','patientDob','patientPhone','patientEmail','preferredDate','reason','insuranceProvider','insuranceMemberId'].forEach(id => {
+      document.getElementById(id).addEventListener('input', e => {
+        updateState({ [id]: e.target.value })
+      })
+    })
+
+    initBridge({
+      defaultState,
+      getState: () => state,
+      setState: (newState) => {
+        state = { ...defaultState, ...newState }
+        render()
+      },
+    })
+
+    render()
+  </script>
+</body>
+</html>

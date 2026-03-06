@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request an Appointment — Fish Family Medicine</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f1f5f9;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #1e293b;
+      font-size: 14px;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .wizard-header {
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 16px 24px 0;
+      flex-shrink: 0;
+    }
+    .wizard-header h1 {
+      font-size: 16px; font-weight: 700; color: #0d9488;
+      margin-bottom: 16px;
+    }
+
+    /* Progress bar */
+    .progress {
+      display: flex;
+      align-items: flex-start;
+      position: relative;
+      padding-bottom: 0;
+    }
+    .progress-line {
+      position: absolute;
+      top: 12px; left: 0; right: 0;
+      height: 2px;
+      background: #e2e8f0;
+      z-index: 0;
+    }
+    .progress-line-fill {
+      height: 100%;
+      background: #0d9488;
+      transition: width 300ms ease;
+    }
+    .step-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      padding-bottom: 12px;
+    }
+    .step-dot {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      border: 2px solid #e2e8f0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #94a3b8;
+      transition: all 200ms;
+    }
+    .step-item.active .step-dot {
+      background: #0d9488; border-color: #0d9488; color: white;
+      box-shadow: 0 0 0 4px rgba(13,148,136,0.15);
+    }
+    .step-item.completed .step-dot {
+      background: #0d9488; border-color: #0d9488; color: white;
+    }
+    .step-label {
+      font-size: 10px; font-weight: 500; color: #94a3b8;
+      margin-top: 6px; text-align: center; white-space: nowrap;
+    }
+    .step-item.active .step-label { color: #0d9488; font-weight: 600; }
+    .step-item.completed .step-label { color: #475569; }
+
+    /* Content area */
+    .wizard-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+    }
+
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    .step-title {
+      font-size: 16px; font-weight: 700; color: #1e293b;
+      margin-bottom: 4px;
+    }
+    .step-subtitle {
+      font-size: 13px; color: #64748b; margin-bottom: 20px;
+    }
+
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block; font-size: 12px; font-weight: 500;
+      color: #374151; margin-bottom: 5px;
+    }
+    .field input, .field textarea {
+      width: 100%;
+      border: 1px solid #d1d5db; border-radius: 7px;
+      padding: 8px 11px; font-size: 14px; font-family: inherit;
+      color: #1e293b; background: white;
+      transition: border-color 150ms; outline: none;
+    }
+    .field input:focus, .field textarea:focus {
+      border-color: #0d9488;
+      box-shadow: 0 0 0 3px rgba(13,148,136,0.1);
+    }
+    .field textarea { resize: vertical; min-height: 80px; }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .toggle-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .toggle-card {
+      border: 2px solid #e2e8f0; border-radius: 8px; padding: 12px;
+      text-align: center; cursor: pointer; transition: all 150ms;
+      font-size: 13px; font-weight: 500; color: #374151; user-select: none;
+    }
+    .toggle-card:hover { border-color: #0d9488; background: #f0fdfa; }
+    .toggle-card.selected { border-color: #0d9488; background: #f0fdfa; color: #0d9488; font-weight: 600; }
+    .toggle-card .icon { font-size: 20px; margin-bottom: 4px; }
+
+    .provider-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .provider-card {
+      border: 2px solid #e2e8f0; border-radius: 8px; padding: 14px 10px;
+      cursor: pointer; transition: all 150ms; text-align: center; user-select: none;
+    }
+    .provider-card:hover { border-color: #0d9488; background: #f0fdfa; }
+    .provider-card.selected { border-color: #0d9488; background: #f0fdfa; }
+    .provider-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: #e2e8f0;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 8px;
+      font-size: 15px; font-weight: 700; color: #475569;
+    }
+    .provider-card.selected .provider-avatar { background: #ccfbf1; color: #0d9488; }
+    .provider-name { font-size: 12px; font-weight: 600; color: #374151; }
+    .provider-specialty { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 7px; }
+    .pill {
+      border: 1.5px solid #e2e8f0; border-radius: 999px;
+      padding: 6px 14px; font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 120ms; color: #374151; user-select: none;
+    }
+    .pill:hover { border-color: #0d9488; color: #0d9488; }
+    .pill.selected { border-color: #0d9488; background: #0d9488; color: white; }
+
+    /* Review */
+    .review-section { margin-bottom: 16px; }
+    .review-section-title {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: #94a3b8; margin-bottom: 8px;
+    }
+    .review-card {
+      background: white; border: 1px solid #e2e8f0; border-radius: 10px;
+      overflow: hidden;
+    }
+    .review-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 14px; border-bottom: 1px solid #f1f5f9;
+      font-size: 13px;
+    }
+    .review-row:last-child { border-bottom: none; }
+    .review-label { color: #64748b; }
+    .review-value { font-weight: 500; color: #1e293b; }
+    .edit-link {
+      font-size: 11px; color: #0d9488; cursor: pointer;
+      text-decoration: underline; margin-left: 8px;
+    }
+
+    /* Footer nav */
+    .wizard-footer {
+      background: white; border-top: 1px solid #e2e8f0;
+      padding: 14px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-shrink: 0;
+    }
+    .btn-back {
+      background: none; border: 1px solid #d1d5db; border-radius: 8px;
+      padding: 9px 20px; font-size: 13px; font-weight: 500;
+      color: #374151; cursor: pointer; font-family: inherit;
+      transition: all 150ms;
+    }
+    .btn-back:hover { border-color: #9ca3af; }
+    .btn-back:disabled { opacity: 0.3; cursor: default; }
+    .btn-next {
+      background: #0d9488; color: white; border: none; border-radius: 8px;
+      padding: 9px 24px; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: background 150ms;
+    }
+    .btn-next:hover { background: #0f766e; }
+    .step-counter { font-size: 12px; color: #94a3b8; }
+
+    /* Confirmation */
+    .confirmation {
+      display: none; text-align: center; padding: 40px 24px;
+    }
+    .confirmation.visible { display: block; }
+    .confirmation .check {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: #d1fae5;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px; font-size: 28px;
+    }
+    .confirmation h2 { font-size: 20px; font-weight: 700; color: #065f46; margin-bottom: 8px; }
+    .confirmation p { font-size: 14px; color: #374151; line-height: 1.6; }
+    .reset-btn {
+      background: none; border: 1px solid #d1d5db; border-radius: 8px;
+      padding: 10px 20px; font-size: 13px; color: #6b7280;
+      font-family: inherit; cursor: pointer; margin-top: 20px;
+    }
+    .reset-btn:hover { border-color: #9ca3af; color: #374151; }
+  </style>
+</head>
+<body>
+  <div class="wizard-header">
+    <h1>Fish Family Medicine</h1>
+    <div class="progress">
+      <div class="progress-line"><div class="progress-line-fill" id="progressFill"></div></div>
+      <div class="step-item" id="stepItem-patient-info">
+        <div class="step-dot">1</div>
+        <div class="step-label">Patient</div>
+      </div>
+      <div class="step-item" id="stepItem-provider">
+        <div class="step-dot">2</div>
+        <div class="step-label">Provider</div>
+      </div>
+      <div class="step-item" id="stepItem-schedule">
+        <div class="step-dot">3</div>
+        <div class="step-label">Schedule</div>
+      </div>
+      <div class="step-item" id="stepItem-review">
+        <div class="step-dot">4</div>
+        <div class="step-label">Review</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wizard-body">
+    <!-- Step 1: Patient Info -->
+    <div class="step-panel" id="panel-patient-info">
+      <div class="step-title">Who are you?</div>
+      <div class="step-subtitle">Tell us a bit about yourself so we can find your records.</div>
+      <div class="row">
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="patientName" placeholder="Your name" />
+        </div>
+        <div class="field">
+          <label>Date of Birth</label>
+          <input type="date" id="patientDob" />
+        </div>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <div class="field">
+          <label>Phone</label>
+          <input type="tel" id="patientPhone" placeholder="555-0198" />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="patientEmail" placeholder="you@email.com" />
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <label style="display:block;font-size:12px;font-weight:500;color:#374151;margin-bottom:8px">New or returning?</label>
+        <div class="toggle-row">
+          <div class="toggle-card" id="newPatient" onclick="setNewPatient(true)">
+            <div class="icon">✨</div>New Patient
+          </div>
+          <div class="toggle-card" id="returningPatient" onclick="setNewPatient(false)">
+            <div class="icon">👋</div>Returning Patient
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Provider -->
+    <div class="step-panel" id="panel-provider">
+      <div class="step-title">Choose a Provider</div>
+      <div class="step-subtitle">Select who you'd like to see.</div>
+      <div class="provider-grid">
+        <div class="provider-card" id="prov-dr-fish" onclick="setProvider('dr-fish')">
+          <div class="provider-avatar">DF</div>
+          <div class="provider-name">Dr. Fish</div>
+          <div class="provider-specialty">Family Medicine</div>
+        </div>
+        <div class="provider-card" id="prov-dr-brooks" onclick="setProvider('dr-brooks')">
+          <div class="provider-avatar">DB</div>
+          <div class="provider-name">Dr. Brooks</div>
+          <div class="provider-specialty">Family Medicine</div>
+        </div>
+        <div class="provider-card" id="prov-nurse-practitioner" onclick="setProvider('nurse-practitioner')">
+          <div class="provider-avatar">NP</div>
+          <div class="provider-name">Nurse Practitioner</div>
+          <div class="provider-specialty">General Care</div>
+        </div>
+        <div class="provider-card" id="prov-any" onclick="setProvider('any')">
+          <div class="provider-avatar">?</div>
+          <div class="provider-name">Any Available</div>
+          <div class="provider-specialty">Earliest slot</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Schedule -->
+    <div class="step-panel" id="panel-schedule">
+      <div class="step-title">When & Why?</div>
+      <div class="step-subtitle">Pick a time and tell us what's going on.</div>
+      <div style="margin-bottom:16px">
+        <label style="display:block;font-size:12px;font-weight:500;color:#374151;margin-bottom:8px">Appointment Type</label>
+        <div class="pill-row">
+          <div class="pill" id="type-checkup" onclick="setAppointmentType('checkup')">Checkup</div>
+          <div class="pill" id="type-sick-visit" onclick="setAppointmentType('sick-visit')">Sick Visit</div>
+          <div class="pill" id="type-follow-up" onclick="setAppointmentType('follow-up')">Follow-Up</div>
+          <div class="pill" id="type-physical" onclick="setAppointmentType('physical')">Physical</div>
+          <div class="pill" id="type-other" onclick="setAppointmentType('other')">Other</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Preferred Date</label>
+        <input type="date" id="preferredDate" />
+      </div>
+      <div style="margin-top:14px;margin-bottom:16px">
+        <label style="display:block;font-size:12px;font-weight:500;color:#374151;margin-bottom:8px">Time Preference</label>
+        <div class="pill-row">
+          <div class="pill" id="time-morning" onclick="setPreferredTime('morning')">Morning</div>
+          <div class="pill" id="time-afternoon" onclick="setPreferredTime('afternoon')">Afternoon</div>
+          <div class="pill" id="time-any" onclick="setPreferredTime('any')">No Preference</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Reason for Visit</label>
+        <textarea id="reason" placeholder="Briefly describe why you're coming in..."></textarea>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Insurance Provider</label>
+          <input type="text" id="insuranceProvider" placeholder="Blue Cross, Aetna..." />
+        </div>
+        <div class="field">
+          <label>Member ID</label>
+          <input type="text" id="insuranceMemberId" placeholder="BCX-9981234" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Review -->
+    <div class="step-panel" id="panel-review">
+      <div class="step-title">Review & Submit</div>
+      <div class="step-subtitle">Confirm everything looks right before submitting.</div>
+      <div id="reviewContent"></div>
+    </div>
+
+    <!-- Confirmation -->
+    <div class="confirmation" id="confirmation">
+      <div class="check">✓</div>
+      <h2>Request Submitted!</h2>
+      <p>We'll confirm your appointment within 24 hours via email or phone.</p>
+      <button class="reset-btn" onclick="resetWizard()">Start Over</button>
+    </div>
+  </div>
+
+  <div class="wizard-footer" id="wizardFooter">
+    <button class="btn-back" id="btnBack" onclick="goBack()">← Back</button>
+    <span class="step-counter" id="stepCounter"></span>
+    <button class="btn-next" id="btnNext" onclick="goNext()">Next →</button>
+  </div>
+
+  <script type="module">
+    import { initBridge, emitStateChange } from '../_shared/stateframe-bridge.js'
+
+    const STEPS = ['patient-info', 'provider', 'schedule', 'review']
+    const STEP_LABELS = {
+      'patient-info': 'Step 1 of 4',
+      'provider': 'Step 2 of 4',
+      'schedule': 'Step 3 of 4',
+      'review': 'Step 4 of 4',
+    }
+    const NEXT_LABELS = {
+      'patient-info': 'Next →',
+      'provider': 'Next →',
+      'schedule': 'Next →',
+      'review': 'Submit Request',
+    }
+
+    const defaultState = {
+      currentStep: 'patient-info',
+      patientName: '', patientDob: '', patientPhone: '', patientEmail: '',
+      isNewPatient: null, provider: null, appointmentType: null,
+      preferredDate: '', preferredTime: null, reason: '',
+      insuranceProvider: '', insuranceMemberId: '', submitted: false,
+    }
+
+    let state = { ...defaultState }
+
+    const providerNames = {
+      'dr-fish': 'Dr. Fish', 'dr-brooks': 'Dr. Brooks',
+      'nurse-practitioner': 'Nurse Practitioner', 'any': 'Any Available',
+    }
+    const typeNames = {
+      'checkup': 'Checkup', 'sick-visit': 'Sick Visit',
+      'follow-up': 'Follow-Up', 'physical': 'Physical', 'other': 'Other',
+    }
+    const timeNames = { 'morning': 'Morning', 'afternoon': 'Afternoon', 'any': 'No Preference' }
+
+    function render() {
+      const step = state.currentStep
+
+      // Step panels
+      STEPS.forEach(s => {
+        document.getElementById('panel-' + s).classList.toggle('active', s === step)
+      })
+
+      // Progress indicators
+      const stepIndex = STEPS.indexOf(step)
+      STEPS.forEach((s, i) => {
+        const item = document.getElementById('stepItem-' + s)
+        item.classList.remove('active', 'completed')
+        if (i === stepIndex) item.classList.add('active')
+        else if (i < stepIndex) item.classList.add('completed')
+        const dot = item.querySelector('.step-dot')
+        dot.textContent = i < stepIndex ? '✓' : (i + 1)
+      })
+
+      // Progress line fill
+      const pct = stepIndex / (STEPS.length - 1) * 100
+      document.getElementById('progressFill').style.width = pct + '%'
+
+      // Footer
+      const isFirst = step === 'patient-info'
+      const isReview = step === 'review'
+      document.getElementById('btnBack').disabled = isFirst
+      document.getElementById('btnNext').textContent = NEXT_LABELS[step]
+      document.getElementById('stepCounter').textContent = STEP_LABELS[step]
+
+      if (state.submitted) {
+        document.querySelector('.wizard-footer').style.display = 'none'
+        document.getElementById('panel-review').classList.remove('active')
+        document.getElementById('confirmation').classList.add('visible')
+      } else {
+        document.querySelector('.wizard-footer').style.display = 'flex'
+        document.getElementById('confirmation').classList.remove('visible')
+      }
+
+      // Sync form fields
+      ;['patientName','patientDob','patientPhone','patientEmail','preferredDate','reason','insuranceProvider','insuranceMemberId'].forEach(id => {
+        const el = document.getElementById(id)
+        if (el) el.value = state[id] || ''
+      })
+      const np = document.getElementById('newPatient')
+      const rp = document.getElementById('returningPatient')
+      if (np) np.classList.toggle('selected', state.isNewPatient === true)
+      if (rp) rp.classList.toggle('selected', state.isNewPatient === false)
+
+      ;['dr-fish','dr-brooks','nurse-practitioner','any'].forEach(p => {
+        const el = document.getElementById('prov-' + p)
+        if (el) el.classList.toggle('selected', state.provider === p)
+      })
+      ;['checkup','sick-visit','follow-up','physical','other'].forEach(t => {
+        const el = document.getElementById('type-' + t)
+        if (el) el.classList.toggle('selected', state.appointmentType === t)
+      })
+      ;['morning','afternoon','any'].forEach(t => {
+        const el = document.getElementById('time-' + t)
+        if (el) el.classList.toggle('selected', state.preferredTime === t)
+      })
+
+      // Review content
+      if (step === 'review') renderReview()
+    }
+
+    function renderReview() {
+      document.getElementById('reviewContent').innerHTML = `
+        <div class="review-section">
+          <div class="review-section-title">Patient</div>
+          <div class="review-card">
+            <div class="review-row"><span class="review-label">Name</span><span class="review-value">${state.patientName || '—'}</span></div>
+            <div class="review-row"><span class="review-label">DOB</span><span class="review-value">${state.patientDob || '—'}</span></div>
+            <div class="review-row"><span class="review-label">Phone</span><span class="review-value">${state.patientPhone || '—'}</span></div>
+            <div class="review-row"><span class="review-label">Email</span><span class="review-value">${state.patientEmail || '—'}</span></div>
+            <div class="review-row"><span class="review-label">Patient Type</span><span class="review-value">${state.isNewPatient === true ? 'New' : state.isNewPatient === false ? 'Returning' : '—'}</span></div>
+          </div>
+        </div>
+        <div class="review-section">
+          <div class="review-section-title">Appointment</div>
+          <div class="review-card">
+            <div class="review-row"><span class="review-label">Provider</span><span class="review-value">${providerNames[state.provider] || '—'}</span></div>
+            <div class="review-row"><span class="review-label">Type</span><span class="review-value">${typeNames[state.appointmentType] || '—'}</span></div>
+            <div class="review-row"><span class="review-label">Preferred Date</span><span class="review-value">${state.preferredDate || '—'}</span></div>
+            <div class="review-row"><span class="review-label">Time</span><span class="review-value">${timeNames[state.preferredTime] || '—'}</span></div>
+            <div class="review-row"><span class="review-label">Reason</span><span class="review-value">${state.reason || '—'}</span></div>
+          </div>
+        </div>
+        ${state.insuranceProvider ? `
+        <div class="review-section">
+          <div class="review-section-title">Insurance</div>
+          <div class="review-card">
+            <div class="review-row"><span class="review-label">Provider</span><span class="review-value">${state.insuranceProvider}</span></div>
+            <div class="review-row"><span class="review-label">Member ID</span><span class="review-value">${state.insuranceMemberId || '—'}</span></div>
+          </div>
+        </div>` : ''}
+      `
+    }
+
+    function updateState(changes) {
+      state = { ...state, ...changes }
+      render()
+      emitStateChange(state)
+    }
+
+    window.setNewPatient = (val) => updateState({ isNewPatient: val })
+    window.setProvider = (val) => updateState({ provider: val })
+    window.setAppointmentType = (val) => updateState({ appointmentType: val })
+    window.setPreferredTime = (val) => updateState({ preferredTime: val })
+
+    window.goNext = () => {
+      const idx = STEPS.indexOf(state.currentStep)
+      if (idx < STEPS.length - 1) {
+        updateState({ currentStep: STEPS[idx + 1] })
+      } else {
+        updateState({ submitted: true })
+      }
+    }
+    window.goBack = () => {
+      const idx = STEPS.indexOf(state.currentStep)
+      if (idx > 0) updateState({ currentStep: STEPS[idx - 1] })
+    }
+    window.resetWizard = () => {
+      state = { ...defaultState }
+      render()
+      emitStateChange(state)
+    }
+
+    ;['patientName','patientDob','patientPhone','patientEmail','preferredDate','reason','insuranceProvider','insuranceMemberId'].forEach(id => {
+      const el = document.getElementById(id)
+      if (el) el.addEventListener('input', e => updateState({ [id]: e.target.value }))
+    })
+
+    initBridge({
+      defaultState,
+      getState: () => state,
+      setState: (newState) => {
+        state = { ...defaultState, ...newState }
+        render()
+      },
+    })
+
+    render()
+  </script>
+</body>
+</html>
