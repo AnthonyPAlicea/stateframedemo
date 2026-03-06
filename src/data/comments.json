@@ -66,6 +66,29 @@
     "scroll": { "x": 0, "y": 0 }
   },
   {
+    "id": "c6",
+    "prototype": "wizard",
+    "author": { "name": "Priya Patel", "avatar": "PP" },
+    "text": "Can the review step let you edit inline, not go all the way back?",
+    "state": {
+      "currentStep": "review",
+      "patientName": "James Wilson",
+      "patientDob": "1990-07-22",
+      "patientPhone": "555-0198",
+      "patientEmail": "jwilson@email.com",
+      "isNewPatient": false,
+      "provider": "dr-brooks",
+      "appointmentType": "follow-up",
+      "preferredDate": "2026-03-18",
+      "preferredTime": "afternoon",
+      "reason": "Follow up on blood work results",
+      "insuranceProvider": "Aetna",
+      "insuranceMemberId": "AET-5567890",
+      "submitted": false
+    },
+    "scroll": { "x": 0, "y": 0 }
+  },
+  {
     "id": "c4",
     "prototype": "wizard",
     "author": { "name": "Sarah Chen", "avatar": "SC" },
@@ -112,27 +135,35 @@
     "scroll": { "x": 0, "y": 0 }
   },
   {
-    "id": "c6",
-    "prototype": "wizard",
-    "author": { "name": "Priya Patel", "avatar": "PP" },
-    "text": "Can the review step let you edit inline, not go all the way back?",
+    "id": "c8",
+    "prototype": "conversational",
+    "author": { "name": "Marcus Johnson", "avatar": "MJ" },
+    "text": "What happens when they type something unexpected?",
     "state": {
-      "currentStep": "review",
-      "patientName": "James Wilson",
-      "patientDob": "1990-07-22",
-      "patientPhone": "555-0198",
-      "patientEmail": "jwilson@email.com",
-      "isNewPatient": false,
-      "provider": "dr-brooks",
-      "appointmentType": "follow-up",
-      "preferredDate": "2026-03-18",
-      "preferredTime": "afternoon",
-      "reason": "Follow up on blood work results",
-      "insuranceProvider": "Aetna",
-      "insuranceMemberId": "AET-5567890",
+      "messages": [
+        { "from": "system", "text": "Welcome to Fish Family Medicine! Are you a new or returning patient?" },
+        { "from": "user", "text": "New patient" },
+        { "from": "system", "text": "Welcome! We're glad you chose us. What's your name?" },
+        { "from": "user", "text": "Tom Rivera" },
+        { "from": "system", "text": "Nice to meet you Tom! Can you briefly describe your reason for visiting?" },
+        { "from": "user", "text": "I've been having headaches for about 2 weeks and some dizziness when I stand up" }
+      ],
+      "currentQuestion": "reason-followup",
+      "patientName": "Tom Rivera",
+      "patientDob": "",
+      "patientPhone": "",
+      "patientEmail": "",
+      "isNewPatient": true,
+      "provider": null,
+      "appointmentType": null,
+      "preferredDate": "",
+      "preferredTime": null,
+      "reason": "Headaches for 2 weeks, dizziness when standing",
+      "insuranceProvider": "",
+      "insuranceMemberId": "",
       "submitted": false
     },
-    "scroll": { "x": 0, "y": 0 }
+    "scroll": { "x": 0, "y": 300 }
   },
   {
     "id": "c7",
@@ -165,37 +196,6 @@
       "submitted": false
     },
     "scroll": { "x": 0, "y": 200 }
-  },
-  {
-    "id": "c8",
-    "prototype": "conversational",
-    "author": { "name": "Marcus Johnson", "avatar": "MJ" },
-    "text": "What happens when they type something unexpected?",
-    "state": {
-      "messages": [
-        { "from": "system", "text": "Welcome to Fish Family Medicine! Are you a new or returning patient?" },
-        { "from": "user", "text": "New patient" },
-        { "from": "system", "text": "Welcome! We're glad you chose us. What's your name?" },
-        { "from": "user", "text": "Tom Rivera" },
-        { "from": "system", "text": "Nice to meet you Tom! Can you briefly describe your reason for visiting?" },
-        { "from": "user", "text": "I've been having headaches for about 2 weeks and some dizziness when I stand up" }
-      ],
-      "currentQuestion": "reason-followup",
-      "patientName": "Tom Rivera",
-      "patientDob": "",
-      "patientPhone": "",
-      "patientEmail": "",
-      "isNewPatient": true,
-      "provider": null,
-      "appointmentType": null,
-      "preferredDate": "",
-      "preferredTime": null,
-      "reason": "Headaches for 2 weeks, dizziness when standing",
-      "insuranceProvider": "",
-      "insuranceMemberId": "",
-      "submitted": false
-    },
-    "scroll": { "x": 0, "y": 300 }
   },
   {
     "id": "c9",
